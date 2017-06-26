@@ -298,6 +298,36 @@ enum ACL_internal_access_result
   ACL_INTERNAL_ACCESS_CHECK_GRANT
 };
 
+/* In-memory structure for Multiple Authentication methods
+   Class AUTH_PLUGIN will store plugin and auth values of every plugin;
+   Class AUTH_AND and Class AUTH_OR will use those values and will do corresponding operation on plugins.
+*/
+
+class AUTH_PLUGIN
+{ 
+public:
+  LEX_STRING plugin, auth;
+  
+  int authenticate(){}
+  
+  friend class AUTH_AND;
+  friend class AUTH_OR;
+};
+
+class AUTH_AND 
+{ 
+public:
+  
+  int authenticate_AND(AUTH_PLUGIN *arg1, AUTH_PLUGIN *arg2) { return arg1->authenticate() && arg2->authenticate(); }   
+};
+
+class AUTH_OR 
+{ 
+public:
+   
+  int authenticate_OR(AUTH_PLUGIN *arg1, AUTH_PLUGIN *arg2) {  return arg1->authenticate() || arg2->authenticate(); }
+};
+
 /**
   Per internal table ACL access rules.
   This class is an interface.
