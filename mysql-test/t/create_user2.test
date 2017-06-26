@@ -1,0 +1,55 @@
+INSTALL SONAME 'auth_ed25519';
+INSTALL SONAME 'auth_named_pipe';
+
+CREATE USER foo IDENTIFIED VIA named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe OR mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe OR mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' AND mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe OR mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' OR mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' OR mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' AND mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe AND (mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' AND mysql_old_password USING '*E8D46C25265E545');
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA named_pipe AND (mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB' OR mysql_old_password USING '*E8D46C25265E545');
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA (named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB') AND mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA (named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB') OR mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA (named_pipe OR mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB') OR mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+CREATE USER foo IDENTIFIED VIA (named_pipe AND mysql_native_password USING '*E8D46CE25265E545D225A8A6F1BAF642FEBEE5CB') AND mysql_old_password USING '*E8D46C25265E545';
+select * from mysql.user where user = 'foo';
+drop user foo;
+
+update mysql.user set plugin='';
+flush privileges;
+UNINSTALL SONAME 'auth_named_pipe';
+UNINSTALL SONAME 'auth_ed25519';
