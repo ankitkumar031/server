@@ -974,7 +974,8 @@ Virtual_column_info *add_virtual_expression(THD *thd, Item *expr)
   class sp_variable *spvar;
   class With_clause *with_clause;
   class Virtual_column_info *virtual_column;
-
+  class AUTH_PLUGIN *auth_node;
+  
   handlerton *db_type;
   st_select_lex *select_lex;
   struct p_elem_val *p_elem_value;
@@ -1758,7 +1759,9 @@ bool my_yyoverflow(short **a, YYSTYPE **b, ulong *yystacksize);
 
 %type <string>
         text_string hex_or_bin_String opt_gconcat_separator
-
+		 
+%type <auth_node> auth_method auth_methods
+		
 %type <field_type> int_type real_type
 
 %type <Lex_field_type> type_with_opt_collate field_type
@@ -15974,22 +15977,23 @@ grant_user:
           { 
             $$= $1; 
             $1->pwhash= $5;
-          }
-        | user IDENTIFIED_SYM via_or_with ident_or_text
-          {
-            $$= $1;
-            $1->plugin= $4;
-            $1->auth= empty_lex_str;
-          }
-        | user IDENTIFIED_SYM via_or_with ident_or_text using_or_as TEXT_STRING_sys
-          {
-            $$= $1;
-            $1->plugin= $4;
-            $1->auth= $6;
-          }
+          }       
+        | user IDENTIFIED_SYM via_or_with auth_methods  {$$=$4;}                    
         | user_or_role
           { $$= $1; }
         ;
+		
+auth_methods:
+          auth_method                                   {$$ = $1;}
+		| auth_methods OR_SYM  auth_method              {$$ = OrNode($1, $3);}    /* It will Generate Internal Expression Tree; For now its just a prototype */
+		| auth_methods AND_SYM auth_method              {$$ = AndNode($1, $3);}
+		;
+		
+auth_method:
+		  ident_or_text                        		    {$$->plugin= $1;  $$->auth= empty_lex_str;}
+		| ident_or_text using_or_as TEXT_STRING_sys     {$$->plugin= $1;  $$->auth= $3;}
+		| '(' auth_methods ')'                          {$$ = $2;}
+		;
 
 opt_column_list:
           /* empty */
