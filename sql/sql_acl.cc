@@ -929,6 +929,10 @@ class Grant_table_base
   TABLE_LIST tl;
 };
 
+class AUTH_PLUGIN;
+class AUTH_AND;
+class AUTH_OR;
+
 class User_table: public Grant_table_base
 {
  public:
