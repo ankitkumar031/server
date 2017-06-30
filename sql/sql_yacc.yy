@@ -974,7 +974,7 @@ Virtual_column_info *add_virtual_expression(THD *thd, Item *expr)
   class sp_variable *spvar;
   class With_clause *with_clause;
   class Virtual_column_info *virtual_column;
-  class AUTH_PLUGIN *auth_node;
+  struct AUTH_PLUGIN *auth_node;
   
   handlerton *db_type;
   st_select_lex *select_lex;
