@@ -299,34 +299,68 @@ enum ACL_internal_access_result
 };
 
 /* In-memory structure for Multiple Authentication methods
-   Class AUTH_PLUGIN will store plugin and auth values of every plugin;
+   struct AUTH_PLUGIN will store plugin and auth values of every plugin;
    Class AUTH_AND and Class AUTH_OR will use those values and will do corresponding operation on plugins.
 */
-
-class AUTH_PLUGIN
+struct Node {
+    auth_node* operator_and_or;     /* operator token like AND, OR */
+    auth_node* left;
+    auth_node* right;              /* will be null if the node is a plugin */
+};
+struct AUTH_PLUGIN
 { 
-public:
   LEX_STRING plugin, auth;
+  struct Node *auth_node;
   
-  int authenticate(){}
+  struct Node *OrNode(struct Node* left, struct Node *right) {
+    Node *auth_node = malloc(sizeof(Node));
+    auth_node->operator_and_or = OR;
+    auth_node->left->plugin = left;
+    auth_node->left->auth = left;
+	auth_node->right->plugin = right;
+    auth_node->right->auth = right;
+    return auth_node;
+  };
+  
+  struct Node *AndNode(struct Node* left, struct Node *right) {
+    Node *auth_node = malloc(sizeof(Node));
+    auth_node->operator_and_or = AND;
+    auth_node->left->plugin = left;
+    auth_node->left->auth = left;
+	auth_node->right->plugin = right;
+    auth_node->right->auth = right;
+    return auth_node;
+  };
+  
+  int authenticate(struct Node*){}                /*Stored function in Bison Action will be stored in this in-memory structure and operated as per operator_and_or*/
   
   friend class AUTH_AND;
   friend class AUTH_OR;
+  
+  virtual ~AUTH_PLUGIN() = 0;
 };
+
+inline AUTH_PLUGIN::~AUTH_PLUGIN() { }
 
 class AUTH_AND 
 { 
 public:
   
-  int authenticate_AND(AUTH_PLUGIN *arg1, AUTH_PLUGIN *arg2) { return arg1->authenticate() && arg2->authenticate(); }   
+  int authenticate_AND(struct AUTH_PLUGIN *arg1, struct AUTH_PLUGIN *arg2) { return arg1->authenticate() && arg2->authenticate(); }  
+  virtual ~AUTH_AND() = 0;  
 };
+
+inline AUTH_AND::~AUTH_AND() { }
 
 class AUTH_OR 
 { 
 public:
    
-  int authenticate_OR(AUTH_PLUGIN *arg1, AUTH_PLUGIN *arg2) {  return arg1->authenticate() || arg2->authenticate(); }
+  int authenticate_OR(struct AUTH_PLUGIN *arg1, struct AUTH_PLUGIN *arg2) {  return arg1->authenticate() || arg2->authenticate(); }
+  virtual ~AUTH_OR() = 0;
 };
+
+inline AUTH_OR::~AUTH_OR() { }
 
 /**
   Per internal table ACL access rules.
