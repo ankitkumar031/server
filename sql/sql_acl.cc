@@ -929,7 +929,8 @@ class Grant_table_base
   TABLE_LIST tl;
 };
 
-class AUTH_PLUGIN;
+struct Node;
+struct AUTH_PLUGIN;
 class AUTH_AND;
 class AUTH_OR;
 
